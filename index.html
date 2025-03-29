@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fusion Guest Check-In</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .status {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Fusion Guest Check-In</h2>
+  <div class="status" id="status"></div>
+  <button id="toggleButton" style="display: none;"></button>
+
+  <script>
+    const STORAGE_KEY = 'fusionGuestStatus';
+
+    function updateUI(status) {
+      const statusDiv = document.getElementById("status");
+      const toggleButton = document.getElementById("toggleButton");
+
+      statusDiv.innerText = `✅ You are currently checked '${status.toUpperCase()}'`;
+
+      const nextStatus = status === 'In' ? 'Out' : 'In';
+      toggleButton.innerText = `Check ${nextStatus}`;
+      toggleButton.style.display = 'block';
+
+      toggleButton.onclick = () => submitForm(nextStatus);
+    }
+
+    function submitForm(status) {
+      const formData = new FormData();
+
+      formData.append("entry.559665708", "Dayana");
+      formData.append("entry.580984489", "Castillo");
+      formData.append("entry.2067588880", "1221545988");
+      formData.append("entry.1057122526", "713");
+      formData.append("entry.1616083063", "Harshul");
+      formData.append("entry.964142650", "Jain");
+      formData.append("entry.2056352592", "1233713847");
+      formData.append("entry.939998970", status);
+
+      fetch("https://docs.google.com/forms/d/e/1FAIpQLSf_ZHp5_nNGti0Dr7dQjZDOuHiuUVy7XNnE4pmp0Kb7ywbSxA/formResponse", {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      }).then(() => {
+        localStorage.setItem(STORAGE_KEY, status);
+        updateUI(status);
+      }).catch(() => {
+        document.getElementById("status").innerText = `❌ Error submitting form.`;
+      });
+    }
+
+    window.onload = () => {
+      const savedStatus = localStorage.getItem(STORAGE_KEY);
+      if (savedStatus) {
+        updateUI(savedStatus);
+      } else {
+        document.getElementById("status").innerText = "❓ No check-in status found.";
+        const btn = document.getElementById("toggleButton");
+        btn.innerText = "Check In";
+        btn.style.display = 'block';
+        btn.onclick = () => submitForm('In');
+      }
+    };
+  </script>
+</body>
+</html>
